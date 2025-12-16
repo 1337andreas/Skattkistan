@@ -13,7 +13,7 @@ root.geometry("800x500")
 
 group = Frame(root, bg="#f5f5f5", bd=4, relief=RAISED)            # Frame 1 som ska inkludera längd-definitionen samt
 group.place(relx=0.03, rely=0.1, relheight=0.8, relwidth=0.4)       # lösen-generationswidgeten. 
-version = Label(group, text="version 1.6", bg="#f5f5f5")
+version = Label(group, text="version 1.61", bg="#f5f5f5")
 version.place(relx=0.01, rely=0.01, relwidth=0.2)
 
 helpwindow = None                                                   # Hjälpfönstret finns inte förens det skapas
@@ -26,7 +26,7 @@ def showhelp():
         helpwindow.grab_set()                                       # Tvinga input innan det går att interagera med andra fönster
         helpwindow.title("Guide")
         helpwindow.geometry("600x175")
-        helpmsg = Label(helpwindow, text = """Manual for Skattkistan version 1.6 
+        helpmsg = Label(helpwindow, text = """Manual for Skattkistan version 1.61 
         Correct use: input whole number(s) into the entry-field 
         titled "length" and press generate.
         Passwords will now generate into the right field.
@@ -106,8 +106,7 @@ def passgen():
                       showbutton.destroy()
                       copybutton.destroy()
                       deletebutton.destroy()
-                     # if len(group2.winfo_children()) == 0:                            # Om det inte finns några labels kvar
-                     #      group2.destroy()                                            # Ta bort frame "group2", annars stannar label1 kvar
+
             deletebutton = ttk.Button(group2, text="-", command=remove_password)        # Knapp för att ta bort lösenordet
             deletebutton.grid(column=3, row= rowcount)
 
