@@ -47,7 +47,7 @@ def passgen():
             
             def toggle_password():                  # Funktion för att visa lösenordet när användaren klickar på "?"
                 for pwd_label in pwd_labels:        # För varje individuell widget i listan av widgets  
-                    if pwd_label.cget("text").startswith("*"):    # Om texten i widgeten börjar med asterisker
+                    if pwd_label.cget("text") == len(password) * "*":    # Om lösenordet nu visas som asterisker
                         pwd_label.config(text=password) # Gör om asteriskerna till det faktiska lösenordet
                     else:                             # Men om det inte är asterisker  
                         pwd_label.config(text=len(password) * "*")    # Gör om det till asterisker
