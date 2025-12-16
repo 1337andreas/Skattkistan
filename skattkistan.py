@@ -35,24 +35,31 @@ txt.place(relx=0.35, rely=0.35, relwidth=0.3)
 rowcount = 0                # Adderas med 1 efter varje lösenordsgeneration för att lösenorden ska ordnas efter varandra i GUI:n
 
 def passgen():
-        global rowcount
-        length = int(save_length())
-        chars = string.ascii_letters + string.digits + string.punctuation # Alla karaktärer som vanligtvis är tillåtna i lösenord
-        password = "".join(secrets.choice(chars) for i in range(length)) # Ta ett slumpat urval från "chars" "length" antal gånger
-        pwd_label = Label(group2, text = len(password) * "*")      # Lägg till lösenordet i GUI:n i asterisk-format
-        pwd_label.grid(column=0, row=rowcount)
-        pwd_labels = []                       # Skapa en lista av alla lösenords widgets
-        pwd_labels.append(pwd_label)
-        def toggle_password():                  # Funktion för att visa lösenordet när användaren klickar på "?"
-            for pwd_lab in pwd_labels:        # För varje individuell widget i listan av widgets  
-                if pwd_lab.cget("text").startswith("*"):    # Om texten i widgeten börjar med asterisker
-                    pwd_lab.config(text=password) # Gör om asteriskerna till det faktiska lösenordet
-                else:                             # Men om det inte är asterisker  
-                    pwd_lab.config(text=len(password) * "*")    # Gör om det till asterisker
-        showbutton = ttk.Button(group2, text="?", command=toggle_password) # Lägg till knapp för att visa lösenordet
-        showbutton.grid(column=1, row = rowcount)
-        rowcount += 1
-        return password
+        try:
+            global rowcount
+            length = int(save_length())
+            chars = string.ascii_letters + string.digits + string.punctuation # Alla karaktärer som vanligtvis är tillåtna i lösenord
+            password = "".join(secrets.choice(chars) for i in range(length)) # Ta ett slumpat urval från "chars" "length" antal gånger
+            pwd_label = Label(group2, text = len(password) * "*")      # Lägg till lösenordet i GUI:n i asterisk-format
+            pwd_label.grid(column=0, row=rowcount)
+            pwd_labels = []                       # Skapa en lista av alla lösenords widgets
+            pwd_labels.append(pwd_label)
+            def toggle_password():                  # Funktion för att visa lösenordet när användaren klickar på "?"
+                for pwd_lab in pwd_labels:        # För varje individuell widget i listan av widgets  
+                    if pwd_lab.cget("text").startswith("*"):    # Om texten i widgeten börjar med asterisker
+                        pwd_lab.config(text=password) # Gör om asteriskerna till det faktiska lösenordet
+                    else:                             # Men om det inte är asterisker  
+                        pwd_lab.config(text=len(password) * "*")    # Gör om det till asterisker
+            showbutton = ttk.Button(group2, text="?", command=toggle_password) # Lägg till knapp för att visa lösenordet
+            showbutton.grid(column=1, row = rowcount)
+            rowcount += 1
+            return password
+        except ValueError:                  # Fånga när length blir matad med non-integer värden, int(save_length()) av en string blir ValueError
+                  newwindow = Tk()
+                  newwindow.title("Error")
+                  newwindow.geometry("250x30")
+                  errormsg = Label(newwindow, text = "Please only input an integer value")
+                  errormsg.pack(anchor=CENTER)
      
 
 buttongen = ttk.Button(group, text="Generera ett lösenord", command=passgen) # Knapp för att generera lösenord
