@@ -50,8 +50,14 @@ def passgen():
                         pwd_lab.config(text=password) # Gör om asteriskerna till det faktiska lösenordet
                     else:                             # Men om det inte är asterisker  
                         pwd_lab.config(text=len(password) * "*")    # Gör om det till asterisker
-            showbutton = ttk.Button(group2, text="?", command=toggle_password) # Lägg till knapp för att visa lösenordet
+            showbutton = ttk.Button(group2, text="?", command=toggle_password) # Knapp för att visa lösenordet
             showbutton.grid(column=1, row = rowcount)
+            def copy_password():                            # För varje individuell label, kopiera specifikt det lösenordet
+                 for pwd_lab in pwd_labels:
+                    root.clipboard_clear()
+                    root.clipboard_append(password)
+            showbutton = ttk.Button(group2, text="C", command=copy_password) # Knapp för att kopiera lösenordet
+            showbutton.grid(column=2, row= rowcount)
             rowcount += 1
             return password
         except ValueError:                  # Fånga när length blir matad med non-integer värden, int(save_length()) av en string blir ValueError
