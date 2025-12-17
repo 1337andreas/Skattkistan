@@ -2,14 +2,13 @@ Skattkistan är en single-vault lösenordshanterare skapt för att underlätta l
 Programmet har en enkel grafisk interface där användare kan definiera längden av önskat lösenord, generera detta med ett knapptryck, visa det genererade lösenordet, kopiera det oberoende av visningsläge och ta bort befintliga lösenord.
 
 Vid körning av skriptet efterfrågas ett master lösenord.
-Master lösenordet används för att få tillgång till lösenordshanteraren och säkerställer
-att dina lösenord är säkra även om password.txt blir stulen.
+Master lösenordet används till krypteringslogiken och för att få tillgång till lösenordshanteraren.
+Master lösenordet säkerställer att dina lösenord är säkra även om password.txt blir stulen.
 
 Vid första körning av skriptet kan master lösenordet vara vad som helst.
-Följande inloggningar måste ske med samma lösenord.
+Följande inloggningar måste ske med samma lösenord. 
 
-Master lösenordet sparas aldrig så kom ihåg det.
-
+Master lösenordet sparas aldrig.
 
 Användaren av lösenordshanteraren får ta del av ett grafiskt interface med versionsnummer, input-låda, generations-knapp och hjälp knapp.
 Hjälp knappen visar en manual. 
