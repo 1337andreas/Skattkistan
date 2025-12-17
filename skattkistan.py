@@ -7,6 +7,17 @@ from tkinter import ttk
 import string                                                       # För att enkelt kunna definiera ett objekt som innehåller A-Z + 0-9 + all punctuation.
 import secrets                                                      # Bättre variant av "random" som generar mer kryptografiskt säkra lösenord
 from datetime import datetime
+from cryptography.fernet import Fernet
+
+try:
+    with open("key.txt", "rb") as file: # Testa att öppna och läsa filen
+        key = file.read()
+except:
+    with open("key.txt", "wb") as file: # Om filen inte finns, skapa den och skriv
+        key = Fernet.generate_key()
+        file.write(key)
+
+cipher = Fernet(key)
 
 Eventerrorlist = []
 
@@ -25,7 +36,7 @@ root.geometry("800x500")
 
 group = Frame(root, bg="#f5f5f5", bd=4, relief=RAISED)            # Frame 1 som ska inkludera längd-definitionen samt
 group.place(relx=0.03, rely=0.1, relheight=0.8, relwidth=0.4)       # lösen-generationswidgeten. 
-version = Label(group, text="version 1.7", bg="#f5f5f5")
+version = Label(group, text="version 1.8", bg="#f5f5f5")
 version.place(relx=0.01, rely=0.01, relwidth=0.2)
 
 helpwindow = None                                                   # Hjälpfönstret finns inte förens det skapas
@@ -38,7 +49,7 @@ def showhelp():
         helpwindow.grab_set()                                       # Tvinga input innan det går att interagera med andra fönster
         helpwindow.title("Guide")
         helpwindow.geometry("600x175+150+150")
-        helpmsg = Label(helpwindow, text = """Manual for Skattkistan version 1.7 
+        helpmsg = Label(helpwindow, text = """Manual for Skattkistan version 1.8 
         Correct use: input whole number(s) into the entry-field 
         titled "length" and press generate.
         Passwords will now generate into the right field.
@@ -91,22 +102,25 @@ errorwindow = None                                                  # Errorföns
 # Stor risk att logiken för passgen behöver skrivas om för att uppnå detta
 
 savedpasswords = []
-newpasswords = []
+encryptedpass = []
 
 try:                                                                # Testa att öppna filen för inläsning av lösenord
-    with open("password.txt", "r") as file:
+    with open("password.txt", "rb") as file:
         for line in file.readlines():
             line = line.strip()
-            savedpasswords.append(line)
+            encryptedpass.append(line)
+            decrypted = cipher.decrypt(line)
+            savedpasswords.append(decrypted.decode())
 
-except:                                                             # Om filen inte finns så skapa den
-    file = open("password.txt", "w")
+except FileNotFoundError:                                                             # Om filen inte finns så skapa den
+    file = open("password.txt", "wb")
 
 def passgen():
         try:
             global rowcount
             if savedpasswords:                                                              # Om listan av lösenord inte är tom
                 password = savedpasswords.pop(0)                                            # Sätt lösenordet till första elementet i listan och sen ta bort elementet
+                encrypted = encryptedpass.pop(0)
             else:    
                 length = int(save_length())
                 if length > 0:
@@ -116,9 +130,9 @@ def passgen():
                                                                                             # fångar sedan detta för att printa ut unikt "Input length greater than 0" error msg till användaren
                 chars = string.ascii_letters + string.digits + string.punctuation           # Alla karaktärer som vanligtvis är tillåtna i lösenord
                 password = "".join(secrets.choice(chars) for i in range(length))            # Ta ett slumpat urval från "chars" "length" antal gånger
-                newpasswords.append(password)
-                with open("password.txt", "a") as file:
-                    file.write("\n" + password)
+                encrypted = cipher.encrypt(password.encode())
+                with open("password.txt", "ab") as file:
+                    file.write(encrypted + b"\n")
             pwd_label = Label(group2, text = len(password) * "*", bg="#f5f5f5")           # Lägg till lösenordet i GUI:n i asterisk-format
             pwd_label.grid(column=0, row=rowcount)
             pwd_labels = []                                                             # Skapa en lista av alla lösenord widgets
@@ -143,22 +157,25 @@ def passgen():
             copybutton = ttk.Button(group2, text="C", command=copy_password)            # Knapp för att kopiera lösenordet
             copybutton.grid(column=2, row= rowcount)
 
-            def remove_password():                                                      # För varje individuell label, ta bort lösenordet och alla knappar
+            def remove_password(encrypted):                                    # För varje individuell label, ta bort lösenordet och alla knappar
+                # Ta bort labels
                 for pwd_label in pwd_labels:
                     pwd_label.destroy()
                     showbutton.destroy()
                     copybutton.destroy()
                     deletebutton.destroy()
-                    with open("password.txt", "r+") as file:
-                        passwords = file.readlines()
-                        file.seek(0)
-                        for pword in passwords:
-                            if pword.strip() != password:
-                                file.write(pword)
-                                file.truncate()
+
+                with open("password.txt", "rb") as file:
+                    passwords = file.readlines()
+
+                with open("password.txt", "wb") as file:
+                    for pword in passwords:
+                        if pword.strip() != encrypted:
+                            file.write(pword)
+
                 Eventerrorlist.append(str(datetime.now()) + " Event" + " remove_password")
 
-            deletebutton = ttk.Button(group2, text="-", command=remove_password)        # Knapp för att ta bort lösenordet
+            deletebutton = ttk.Button(group2, text="-", command=lambda enc = encrypted: remove_password(enc))        # Knapp för att ta bort lösenordet
             deletebutton.grid(column=3, row= rowcount)
 
             rowcount += 1
