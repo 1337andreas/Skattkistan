@@ -4,21 +4,41 @@
 
 from tkinter import *                                               # Tkinter för att skapa GUI:n
 from tkinter import ttk
+from tkinter import simpledialog
+from tkinter import messagebox
 import string                                                       # För att enkelt kunna definiera ett objekt som innehåller A-Z + 0-9 + all punctuation.
 import secrets                                                      # Bättre variant av "random" som generar mer kryptografiskt säkra lösenord
 from datetime import datetime
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 import os
+import base64
+from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
+
+
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 try:
-    with open("key.txt", "rb") as file: # Testa att öppna och läsa filen
-        key = file.read()
+    with open("salt.bin", "rb") as file: # Öppna och läs av saltfilen
+        salt = file.read()
 except:
-    with open("key.txt", "wb") as file: # Om filen inte finns, skapa den och skriv
-        key = Fernet.generate_key()
-        file.write(key)
+    with open("salt.bin", "wb") as file: # Om filen inte finns, skapa den och lägg till ett slumpat salt
+        salt = os.urandom(16)
+        file.write(salt)
+
+
+def ask_masterpassword():                                           # Skapa en GUI som efterfrågar "Master Password" när funktionen kallas och returnerar detta lösenord
+        masterpass = simpledialog.askstring("Master Password", "Enter your master password: ", show="*")
+        if masterpass is None:                                      # Om masterpass är None (händer när man klickar på cancel) 
+            exit(1)                                                 # bryt funktionen
+        return masterpass.encode()    
+
+masterpass = ask_masterpassword()
+
+kdf = Scrypt(salt=salt, length=32, n=2**14, r=8, p=1)
+
+key = base64.urlsafe_b64encode(kdf.derive(masterpass))
+
 
 cipher = Fernet(key)
 
@@ -39,7 +59,7 @@ root.geometry("800x500")
 
 group = Frame(root, bg="#f5f5f5", bd=4, relief=RAISED)            # Frame 1 som ska inkludera längd-definitionen samt
 group.place(relx=0.03, rely=0.1, relheight=0.8, relwidth=0.4)       # lösen-generationswidgeten. 
-version = Label(group, text="version 1.82", bg="#f5f5f5")
+version = Label(group, text="version 1.9", bg="#f5f5f5")
 version.place(relx=0.01, rely=0.01, relwidth=0.2)
 
 helpwindow = None                                                   # Hjälpfönstret finns inte förens det skapas
@@ -51,7 +71,7 @@ def showhelp():
         helpwindow.transient(root)                                  # Gör fönstret ett barn av huvudfönstret                        
         helpwindow.title("Guide")
         helpwindow.geometry("600x175+150+150")
-        helpmsg = Label(helpwindow, text = """Manual for Skattkistan version 1.82 
+        helpmsg = Label(helpwindow, text = """Manual for Skattkistan version 1.9 
         Correct use: input whole number(s) into the entry-field 
         titled "length" and press generate.
         Passwords will now generate into the right field.
@@ -114,9 +134,14 @@ try:                                                                # Testa att 
             decrypted = cipher.decrypt(line)
             savedpasswords.append(decrypted.decode())
 
-except FileNotFoundError:                                                             # Om filen inte finns så skapa den
-    file = open("password.txt", "wb")
-
+except (FileNotFoundError, InvalidToken) as error:
+    if type(error) == FileNotFoundError:                                                    # Om filen inte finns så skapa den
+        file = open("password.txt", "wb")
+    elif type(error) == InvalidToken:                                                       # Om lösenordet är fel
+        root.withdraw()                                                                     # skapa en messagebox som säger "Invalid master password"
+        messagebox.showerror("Error", "Invalid master password")
+        root.destroy()
+        exit(1)
 def passgen():
         try:
             global rowcount
