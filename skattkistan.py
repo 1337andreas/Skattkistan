@@ -8,6 +8,9 @@ import string                                                       # För att e
 import secrets                                                      # Bättre variant av "random" som generar mer kryptografiskt säkra lösenord
 from datetime import datetime
 from cryptography.fernet import Fernet
+import os
+
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 try:
     with open("key.txt", "rb") as file: # Testa att öppna och läsa filen
@@ -36,7 +39,7 @@ root.geometry("800x500")
 
 group = Frame(root, bg="#f5f5f5", bd=4, relief=RAISED)            # Frame 1 som ska inkludera längd-definitionen samt
 group.place(relx=0.03, rely=0.1, relheight=0.8, relwidth=0.4)       # lösen-generationswidgeten. 
-version = Label(group, text="version 1.81", bg="#f5f5f5")
+version = Label(group, text="version 1.82", bg="#f5f5f5")
 version.place(relx=0.01, rely=0.01, relwidth=0.2)
 
 helpwindow = None                                                   # Hjälpfönstret finns inte förens det skapas
@@ -48,7 +51,7 @@ def showhelp():
         helpwindow.transient(root)                                  # Gör fönstret ett barn av huvudfönstret                        
         helpwindow.title("Guide")
         helpwindow.geometry("600x175+150+150")
-        helpmsg = Label(helpwindow, text = """Manual for Skattkistan version 1.81 
+        helpmsg = Label(helpwindow, text = """Manual for Skattkistan version 1.82 
         Correct use: input whole number(s) into the entry-field 
         titled "length" and press generate.
         Passwords will now generate into the right field.
