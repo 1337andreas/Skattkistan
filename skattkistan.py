@@ -14,6 +14,8 @@ import base64
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 import os
 import sys
+import sv_ttk
+import darkdetect
 
 
 if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):      # Om skriptet körs som en executable
@@ -65,19 +67,19 @@ root = Tk()                                                         # Skapa ett 
 root.title("Skattkistan")
 root.geometry("900x500")
 
-group = Frame(root, bg="#f5f5f5", bd=4, relief=RAISED)              # Frame 1 som ska inkludera längd-definitionen samt
+group = Frame(root, bd=4, relief=RAISED)              # Frame 1 som ska inkludera längd-definitionen samt
 group.place(relx=0.03, rely=0.1, relheight=0.8, relwidth=0.4)       # lösen-generationswidgeten. 
 
-version = Label(group, text="version 1.94", bg="#f5f5f5")
+version = Label(group, text="version 1.95")
 version.place(relx=0.01, rely=0.01, relwidth=0.2)
 
 separate = ttk.Separator(root, orient="vertical")                   # Visuell separator för att skilja på frame 1 och 2
-separate.place(relx=0.47, rely=0, relwidth=0.2, relheight=1)
+separate.place(relx=0.47, rely=0, relheight=1)
 
-canvas = Canvas(root, bg="#f5f5f5", bd=4, relief=SUNKEN)            # Skapar en canvas där min frame finns och alla mina widgets, en canvas skapas här för att sedan inkludera en scrollbar. Går inte att sätta en scrollbar på en frame.
+canvas = Canvas(root, bd=4, relief=SUNKEN)            # Skapar en canvas där min frame finns och alla mina widgets, en canvas skapas här för att sedan inkludera en scrollbar. Går inte att sätta en scrollbar på en frame.
 canvas.place(relx=0.51, rely=0.1, relheight=0.8, relwidth=0.4)
 
-group2 = Frame(canvas, bg="#f5f5f5")                                # Frame två där skapade lösenord ska sparas
+group2 = Frame(canvas)                                # Frame två där skapade lösenord ska sparas
 window1 = canvas.create_window((10, 10), window=group2, anchor=NW)  
 
 def windowsize(event):                                              # Resize fönstret så att frame "group2" endast ligger inuti canvas
@@ -94,7 +96,7 @@ def showhelp():
         helpwindow.transient(root)                                  # Gör fönstret ett barn av huvudfönstret                        
         helpwindow.title("Guide")
         helpwindow.geometry("600x175+150+150")
-        helpmsg = Label(helpwindow, text = """Manual for Skattkistan version 1.94 
+        helpmsg = Label(helpwindow, text = """Manual for Skattkistan version 1.95 
         Correct use: input a whole number above 0 and below 50 
         into the entry-field titled "length" and press generate.
         Passwords will now generate into the right field.
@@ -138,7 +140,7 @@ root.bind("<Button-5>", mwheelscroll)                               # Linux scro
 
 # Längd entry box
 
-txt_label = Label(group, text = "Length: ", bg="#f5f5f5")           # Definierar att det efterfrågas "Längd" vid input-fältet
+txt_label = Label(group, text = "Length: ")           # Definierar att det efterfrågas "Längd" vid input-fältet
 txt_label.place(relx=0.35, rely=0.28, relwidth=0.3)
 
 def save_length(*args):                                             # Funktion för att spara längden som användaren definierar
@@ -198,7 +200,7 @@ def passgen(*args):
                 encrypted = cipher.encrypt(password.encode())
                 with open("password.txt", "ab") as file:
                     file.write(encrypted + b"\n")
-            pwd_label = Label(group2, text = len(password) * "*", bg="#f5f5f5")             # Lägg till lösenordet i GUI:n i asterisk-format
+            pwd_label = Label(group2, text = len(password) * "*")             # Lägg till lösenordet i GUI:n i asterisk-format
             pwd_label.grid(column=0, row=rowcount)
             pwd_labels = []                                                                 # Skapa en lista av alla lösenord widgets
             pwd_labels.append(pwd_label)
@@ -267,6 +269,11 @@ while savedpasswords:                                                           
 buttongen = ttk.Button(group, text="Generate password", command=passgen)                    # Knapp för att generera lösenord
 buttongen.place(relx=0.30, rely=0.43, relwidth=0.4)
 txt.bind("<Return>", passgen)                                                               # Tillåt att användaren klickar enter i input-fältet för generera ett lösenord.
+
+sv_ttk.set_theme(darkdetect.theme())                                                        # Sätt temat till current tema på den aktiva maskinen
+
+toggletheme = ttk.Button(group, text = "Toggle Theme", command=sv_ttk.toggle_theme)
+toggletheme.place(relx=0.01, rely=0.91, relwidth=0.32)
 
 root.mainloop()
 
