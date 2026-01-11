@@ -22,7 +22,9 @@ Masterpass salt sparas okrypterat i salt.bin.
 Alla händelser och felmeddelanden sparas i en loggfil.   
 
 Exempel-körning av skattkistan:
+
 [![Watch the video](https://img.youtube.com/vi/NsWUJzOgVK0/0.jpg)](https://youtu.be/NsWUJzOgVK0)
+
 
 
 
